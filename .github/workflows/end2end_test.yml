@@ -18,3 +18,5 @@ jobs:
         env:
           NEXT_PUBLIC_REMOTE_URL: 'https://chitragupta101.herokuapp.com'
           NEXT_PUBLIC_CAPTCHA_SITE_KEY: '6Ldn0s4eAAAAAD31vMnGJaEZ4pne7uVvh4jbzSPk'
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
