@@ -14,7 +14,7 @@ describe('Navigation', () => {
     cy.get('[type=email]').type('dit.subas@gmail.com')
     cy.get('[type=password]').type('foobar')
 
-    // cy.wait(1000)
+    cy.wait(1000)
 
     cy.get('button').click()
 
