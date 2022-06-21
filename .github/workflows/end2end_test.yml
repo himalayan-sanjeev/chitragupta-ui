@@ -15,6 +15,7 @@ jobs:
         with:
           build: yarn build
           start: yarn start
+          record: true
         env:
           NEXT_PUBLIC_REMOTE_URL: 'https://chitragupta101.herokuapp.com'
           NEXT_PUBLIC_CAPTCHA_SITE_KEY: '6Ldn0s4eAAAAAD31vMnGJaEZ4pne7uVvh4jbzSPk'
