@@ -31,3 +31,34 @@ export const createDeviceType = (deviceType) => async (dispatch, getState) => {
     )
   }
 }
+
+export const remoteUpdateDeviceType =
+  (deviceType) => async (dispatch, getState) => {
+    try {
+      const response = await axios.patch(
+        `${process.env.NEXT_PUBLIC_REMOTE_URL}/api/v1/device_types/${deviceType.id}.json`,
+        {
+          device_type: deviceType,
+        },
+        {
+          headers: {
+            Authorization: getState().auth.token,
+          },
+        },
+      )
+      dispatch(
+        returnAlerts(
+          'Successfully updated device type',
+          response.status,
+          'RECORD_CREATION_SUCCESS',
+        ),
+      )
+    } catch (error) {
+      dispatch(
+        returnErrors(
+          error.response && error.response.data,
+          error.resposne && error.response.status,
+        ),
+      )
+    }
+  }
