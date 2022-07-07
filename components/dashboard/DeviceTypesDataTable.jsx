@@ -6,19 +6,28 @@ import { connect } from 'react-redux'
 import { columns } from '../../data/deviceTypeTableData'
 import { TableContainer } from '../modalComponents'
 import { fetchDeviceTypes } from '../../redux/actions/dashboardActions'
-import { createDeviceType } from '../../redux/actions/deviceTypeActions'
+import {
+  createDeviceType,
+  remoteUpdateDeviceType,
+} from '../../redux/actions/deviceTypeActions'
 import InputWithLabelAndError from '../InputWithLabelAndError'
+
 import axios from 'axios'
 
-function DeviceTypesDataTable({ fetchDeviceTypes, createDeviceType }) {
+function DeviceTypesDataTable({
+  fetchDeviceTypes,
+  createDeviceType,
+  remoteUpdateDeviceType,
+}) {
   const [deviceType, setDeviceType] = useState({})
   const [createNewDeviceType, setCreateNewDeviceType] = useState(false)
   const [errors, setErrors] = useState({})
   const creatingNewDeviceType = () => setCreateNewDeviceType(true)
+  const [updatingDeviceType, setUpdatingDeviceType] = useState(false)
 
   const checkIfFormIsValid = () => {
-    let errorCount = 0;
-    ['device_type'].forEach((field) => {
+    let errorCount = 0
+    ;['device_type'].forEach((field) => {
       if (deviceType[field] === undefined) {
         errorCount += 1
         errors[field] = "Can't be blank."
@@ -36,6 +45,12 @@ function DeviceTypesDataTable({ fetchDeviceTypes, createDeviceType }) {
     }
   }
 
+  function newUpdateDeviceType() {
+    if (checkIfFormIsValid() === 0) {
+      remoteUpdateDeviceType(deviceType)
+      setUpdatingDeviceType(false)
+    }
+  }
   const updateDeviceType = (e) => {
     delete errors[e.target.name]
     setDeviceType({ ...deviceType, [e.target.name]: e.target.value })
@@ -54,7 +69,10 @@ function DeviceTypesDataTable({ fetchDeviceTypes, createDeviceType }) {
         </div>
 
         <DataTable
-          rowClick={() => console.log('row clicked')}
+          rowClick={(row) => {
+            setDeviceType(row.original)
+            setUpdatingDeviceType(true)
+          }}
           columns={columns}
           fetchFunction={fetchDeviceTypes}
         />
@@ -80,7 +98,48 @@ function DeviceTypesDataTable({ fetchDeviceTypes, createDeviceType }) {
           )}
           <Btn
             className="bg-teal-500 hover:bg-teal-600"
-            onClick={() => newDeviceType()}
+            onClick={function () {
+              newDeviceType()
+              {
+                setTimeout(function () {
+                  window.location.reload()
+                })
+              }
+            }}
+          >
+            Submit
+          </Btn>
+        </Modal>
+      )}
+
+      {updatingDeviceType && (
+        <Modal
+          showModal={updatingDeviceType}
+          setShowModal={setCreateNewDeviceType}
+          title="New Device Type"
+        >
+          {updatingDeviceType && (
+            <div className="flex flex-wrap">
+              {['device_type'].map((field) => (
+                <InputWithLabelAndError
+                  name={field}
+                  onChange={updateDeviceType}
+                  value={deviceType[field]}
+                  errors={errors}
+                />
+              ))}
+            </div>
+          )}
+          <Btn
+            className="bg-teal-500 hover:bg-teal-600"
+            onClick={function () {
+              newUpdateDeviceType()
+              {
+                setTimeout(function () {
+                  window.location.reload()
+                })
+              }
+            }}
           >
             Submit
           </Btn>
@@ -90,9 +149,8 @@ function DeviceTypesDataTable({ fetchDeviceTypes, createDeviceType }) {
   )
 }
 
-// export default DeviceTypesDataTable
-
 export default connect(() => ({}), {
   fetchDeviceTypes,
   createDeviceType,
+  remoteUpdateDeviceType,
 })(DeviceTypesDataTable)
