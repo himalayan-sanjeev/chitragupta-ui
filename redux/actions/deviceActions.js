@@ -36,3 +36,38 @@ export const createDevice = (device) => async (dispatch, getState) => {
     )
   }
 }
+
+export const remoteUpdateDevice = (device) => async (dispatch, getState) => {
+  const formData = new FormData()
+
+  for (const field in device) {
+    formData.append(`device[${field}]`, device[field])
+  }
+  formData.append('device[image]', document.querySelector('#image').files[0])
+  try {
+    const response = await axios.patch(
+      `${process.env.NEXT_PUBLIC_REMOTE_URL}/api/v1/devices/${device.id}.json`,
+      formData,
+      {
+        headers: {
+          Authorization: getState().auth.token,
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    )
+    dispatch(
+      returnAlerts(
+        'Successfully updated device',
+        response.status,
+        'RECORD_CREATION_SUCCESS',
+      ),
+    )
+  } catch (error) {
+    dispatch(
+      returnErrors(
+        error.response && error.response.data,
+        error.resposne && error.response.status,
+      ),
+    )
+  }
+}
