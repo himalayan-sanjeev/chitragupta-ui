@@ -9,14 +9,18 @@ import DataTable from './DataTable'
 import { columns } from '../../data/deviceTableData'
 import { TableContainer } from '../modalComponents'
 import { fetchDevices } from '../../redux/actions/dashboardActions'
-import { createDevice } from '../../redux/actions/deviceActions'
+import {
+  createDevice,
+  remoteUpdateDevice,
+} from '../../redux/actions/deviceActions'
 
-function DevicesDataTable({ fetchDevices, createDevice }) {
+function DevicesDataTable({ fetchDevices, createDevice, remoteUpdateDevice }) {
   const [device, setDevice] = useState({})
   const [createNewDevice, setCreateNewDevice] = useState(false)
   const [errors, setErrors] = useState({})
   const creatingNewDevice = () => setCreateNewDevice(true)
   const [deviceTypes, setDeviceTypes] = useState([])
+  const [updatingDevice, setUpdatingDevice] = useState(false)
   const dataFormatter = new Jsona()
 
   useEffect(() => {
@@ -31,11 +35,6 @@ function DevicesDataTable({ fetchDevices, createDevice }) {
     }
     fetchDeviceTypes()
   }, [])
-
-  const updateDevice = (e) => {
-    delete errors[e.target.name]
-    setDevice({ ...device, [e.target.name]: e.target.value })
-  }
 
   const checkIfFormIsValid = () => {
     let errorCount = 0
@@ -56,6 +55,18 @@ function DevicesDataTable({ fetchDevices, createDevice }) {
     }
   }
 
+  const updateDevice = (e) => {
+    delete errors[e.target.name]
+    setDevice({ ...device, [e.target.name]: e.target.value })
+  }
+
+  const sendRemoteUpdateRequest = () => {
+    if (checkIfFormIsValid() === 0) {
+      remoteUpdateDevice(device)
+      setUpdatingDevice(false)
+    }
+  }
+
   return (
     <>
       <TableContainer>
@@ -68,11 +79,16 @@ function DevicesDataTable({ fetchDevices, createDevice }) {
           </Btn>
         </div>
         <DataTable
-          rowClick={() => console.log('row clicked')}
+          rowClick={(row) => {
+            // console.log('row clicked')
+            setDevice(row.original)
+            setUpdatingDevice(true)
+          }}
           columns={columns}
           fetchFunction={fetchDevices}
         />
       </TableContainer>
+
       {createNewDevice && (
         <Modal
           showModal={createNewDevice}
@@ -158,7 +174,113 @@ function DevicesDataTable({ fetchDevices, createDevice }) {
           )}
           <Btn
             className="bg-teal-500 hover:bg-teal-600"
-            onClick={() => newDevice()}
+            onClick={function () {
+              newDevice()
+              {
+                setTimeout(function () {
+                  window.location.reload()
+                })
+              }
+            }}
+          >
+            Submit
+          </Btn>
+        </Modal>
+      )}
+
+      {updatingDevice && (
+        <Modal
+          showModal={updatingDevice}
+          setShowModal={setUpdatingDevice}
+          title="Update Device"
+        >
+          {updatingDevice && (
+            <div className="flex flex-wrap">
+              <Label className="block pb-3 text-sm font-semibold text-gray-500 uppercase">
+                Device Type
+              </Label>
+
+              <Select
+                className="w-full px-3 py-3 text-sm border rounded-lg mt-0"
+                name="device_type_id"
+                onChange={updateDevice}
+                errrors={errors}
+              >
+                <Option value="" disabled selected>
+                  Please Select one
+                </Option>
+                {deviceTypes.map((device_type) => (
+                  <Option value={device_type.id} key={device_type.id}>
+                    {device_type.device_type}
+                  </Option>
+                ))}
+              </Select>
+
+              {['identifier', 'images'].map((field) => {
+                if (field === 'images') {
+                  return (
+                    <div className="block px-5 py-3 pr-4 mb-4 md:w-1/2">
+                      <label className="block pb-3 text-sm font-semibold text-gray-500 uppercase">
+                        images
+                      </label>
+                      <input id="image" name={field} type={'file'} />
+                    </div>
+                  )
+                } else {
+                  return (
+                    <InputWithLabelAndError
+                      name={field}
+                      onChange={updateDevice}
+                      value={device[field]}
+                      errors={errors}
+                    />
+                  )
+                }
+              })}
+
+              <div className="w-status">
+                <Label className="block pb-3 text-sm font-semibold text-gray-500 uppercase">
+                  Status
+                </Label>
+                <Select
+                  className="w-full px-3 py-3 text-sm border rounded-lg mt-0"
+                  name="status"
+                  onChange={updateDevice}
+                  errrors={errors}
+                >
+                  <Option>Please Select one</Option>
+                  <Option
+                    value="available"
+                    selected={device.status == 'available'}
+                  >
+                    available
+                  </Option>
+                  <Option
+                    value="unavailable"
+                    selected={device.status == 'unavailable'}
+                  >
+                    unavailable
+                  </Option>
+                  <Option
+                    value="dysfunctional"
+                    selected={device.status == 'dysfunctional'}
+                  >
+                    dysfunctional
+                  </Option>
+                </Select>
+              </div>
+            </div>
+          )}
+          <Btn
+            className="bg-teal-500 hover:bg-teal-600"
+            onClick={function () {
+              sendRemoteUpdateRequest()
+              {
+                setTimeout(function () {
+                  window.location.reload()
+                })
+              }
+            }}
           >
             Submit
           </Btn>
@@ -168,6 +290,8 @@ function DevicesDataTable({ fetchDevices, createDevice }) {
   )
 }
 
-export default connect(() => ({}), { fetchDevices, createDevice })(
-  DevicesDataTable,
-)
+export default connect(() => ({}), {
+  fetchDevices,
+  createDevice,
+  remoteUpdateDevice,
+})(DevicesDataTable)
