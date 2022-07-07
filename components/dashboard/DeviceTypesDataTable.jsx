@@ -116,7 +116,7 @@ function DeviceTypesDataTable({
         <Modal
           showModal={updatingDeviceType}
           setShowModal={setCreateNewDeviceType}
-          title="New Device Type"
+          title="Update Device Type"
         >
           {updatingDeviceType && (
             <div className="flex flex-wrap">

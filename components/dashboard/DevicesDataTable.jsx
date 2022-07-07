@@ -80,7 +80,6 @@ function DevicesDataTable({ fetchDevices, createDevice, remoteUpdateDevice }) {
         </div>
         <DataTable
           rowClick={(row) => {
-            // console.log('row clicked')
             setDevice(row.original)
             setUpdatingDevice(true)
           }}
