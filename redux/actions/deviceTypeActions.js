@@ -50,7 +50,35 @@ export const remoteUpdateDeviceType =
         returnAlerts(
           'Successfully updated device type',
           response.status,
-          'RECORD_CREATION_SUCCESS',
+          'RECORD_UPDATION_SUCCESS',
+        ),
+      )
+    } catch (error) {
+      dispatch(
+        returnErrors(
+          error.response && error.response.data,
+          error.resposne && error.response.status,
+        ),
+      )
+    }
+  }
+
+export const remoteDestroyDeviceType =
+  (deviceType) => async (dispatch, getState) => {
+    try {
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_REMOTE_URL}/api/v1/device_types/${deviceType.id}.json`,
+        {
+          headers: {
+            Authorization: getState().auth.token,
+          },
+        },
+      )
+      dispatch(
+        returnAlerts(
+          'Successfully deleted device type',
+          response.status,
+          'RECORD_DELETION_SUCCESS',
         ),
       )
     } catch (error) {

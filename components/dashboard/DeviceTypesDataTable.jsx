@@ -9,6 +9,7 @@ import { fetchDeviceTypes } from '../../redux/actions/dashboardActions'
 import {
   createDeviceType,
   remoteUpdateDeviceType,
+  remoteDestroyDeviceType,
 } from '../../redux/actions/deviceTypeActions'
 import InputWithLabelAndError from '../InputWithLabelAndError'
 
@@ -18,6 +19,7 @@ function DeviceTypesDataTable({
   fetchDeviceTypes,
   createDeviceType,
   remoteUpdateDeviceType,
+  remoteDestroyDeviceType,
 }) {
   const [deviceType, setDeviceType] = useState({})
   const [createNewDeviceType, setCreateNewDeviceType] = useState(false)
@@ -51,6 +53,13 @@ function DeviceTypesDataTable({
       setUpdatingDeviceType(false)
     }
   }
+
+  function deleteDeviceType() {
+    // console.log('hello')
+    remoteDestroyDeviceType(deviceType)
+    setDeviceType({ ...deviceType })
+  }
+
   const updateDeviceType = (e) => {
     delete errors[e.target.name]
     setDeviceType({ ...deviceType, [e.target.name]: e.target.value })
@@ -143,6 +152,19 @@ function DeviceTypesDataTable({
           >
             Submit
           </Btn>
+          <Btn
+            className="bg-red-500 hover:bg-red-600"
+            onClick={function () {
+              deleteDeviceType()
+              {
+                setTimeout(function () {
+                  window.location.reload()
+                })
+              }
+            }}
+          >
+            Delete
+          </Btn>
         </Modal>
       )}
     </>
@@ -153,4 +175,5 @@ export default connect(() => ({}), {
   fetchDeviceTypes,
   createDeviceType,
   remoteUpdateDeviceType,
+  remoteDestroyDeviceType,
 })(DeviceTypesDataTable)
