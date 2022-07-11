@@ -12,9 +12,15 @@ import { fetchDevices } from '../../redux/actions/dashboardActions'
 import {
   createDevice,
   remoteUpdateDevice,
+  remoteDestroyDevice,
 } from '../../redux/actions/deviceActions'
 
-function DevicesDataTable({ fetchDevices, createDevice, remoteUpdateDevice }) {
+function DevicesDataTable({
+  fetchDevices,
+  createDevice,
+  remoteUpdateDevice,
+  remoteDestroyDevice,
+}) {
   const [device, setDevice] = useState({})
   const [createNewDevice, setCreateNewDevice] = useState(false)
   const [errors, setErrors] = useState({})
@@ -65,6 +71,11 @@ function DevicesDataTable({ fetchDevices, createDevice, remoteUpdateDevice }) {
       remoteUpdateDevice(device)
       setUpdatingDevice(false)
     }
+  }
+
+  const sendRemoteDestroyRequest = () => {
+    remoteDestroyDevice(device)
+    setDevice({ ...device })
   }
 
   return (
@@ -203,6 +214,7 @@ function DevicesDataTable({ fetchDevices, createDevice, remoteUpdateDevice }) {
                 className="w-full px-3 py-3 text-sm border rounded-lg mt-0"
                 name="device_type_id"
                 onChange={updateDevice}
+                value={device.device_type}
                 errrors={errors}
               >
                 <Option value="" disabled selected>
@@ -281,7 +293,20 @@ function DevicesDataTable({ fetchDevices, createDevice, remoteUpdateDevice }) {
               }
             }}
           >
-            Submit
+            Update
+          </Btn>
+          <Btn
+            className="bg-red-500 hover:bg-red-600"
+            onClick={function () {
+              sendRemoteDestroyRequest()
+              {
+                setTimeout(function () {
+                  window.location.reload()
+                })
+              }
+            }}
+          >
+            Delete
           </Btn>
         </Modal>
       )}
@@ -293,4 +318,5 @@ export default connect(() => ({}), {
   fetchDevices,
   createDevice,
   remoteUpdateDevice,
+  remoteDestroyDevice,
 })(DevicesDataTable)

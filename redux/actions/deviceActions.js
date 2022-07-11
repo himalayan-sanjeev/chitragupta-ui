@@ -71,3 +71,31 @@ export const remoteUpdateDevice = (device) => async (dispatch, getState) => {
     )
   }
 }
+
+export const remoteDestroyDevice = (device) => async (dispatch, getState) => {
+  try {
+    const response = await axios.delete(
+      `${process.env.NEXT_PUBLIC_REMOTE_URL}/api/v1/devices/${device.id}.json`,
+      {
+        headers: {
+          Authorization: getState().auth.token,
+        },
+      },
+    )
+    console.log(response)
+    dispatch(
+      returnAlerts(
+        'Successfully deleted device',
+        response.status,
+        'RECORD_DELETION_SUCCESS',
+      ),
+    )
+  } catch (error) {
+    dispatch(
+      returnErrors(
+        error.response && error.response.data,
+        error.resposne && error.response.status,
+      ),
+    )
+  }
+}
